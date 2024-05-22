@@ -19,44 +19,34 @@ class LRUCache(BaseCaching):
     def __init__(self):
         """Initialize the LRUCache."""
         super().__init__()
-        self.order = []
+        self.usedKeys = []
 
     def put(self, key, item):
-        """
-        Assign the item value to the key key in self.cache_data.
-
-        If key or item is None, this method does nothing.
-        If the cache exceeds MAX_ITEMS, the least recently used item is discarded.
+        """_summary_
 
         Args:
-            key (str): The key to store in the cache.
-            item (any): The item to store in the cache.
+                        key (_type_): _description_
+                        item (_type_): _description_
         """
         if key is not None and item is not None:
-            if key in self.cache_data:
-                self.order.remove(key)
             self.cache_data[key] = item
-            self.order.append(key)
-            if len(self.cache_data) > BaseCaching.MAX_ITEMS:
-                least_recently_used_key = self.order.pop(0)
-                del self.cache_data[least_recently_used_key]
-                print(f"DISCARD: {least_recently_used_key}")
+            if key not in self.usedKeys:
+                self.usedKeys.append(key)
+            else:
+                self.usedKeys.append(
+                    self.usedKeys.pop(self.usedKeys.index(key)))
+            if len(self.usedKeys) > BaseCaching.MAX_ITEMS:
+                discard = self.usedKeys.pop(0)
+                del self.cache_data[discard]
+                print('DISCARD: {:s}'.format(discard))
 
     def get(self, key):
-        """
-        Return the value in self.cache_data linked to key.
-
-        If the key is found, it is moved to the end of the order list
-        to mark it as recently used.
+        """return the value in self.cache_data linked to key
 
         Args:
-            key (str): The key to retrieve from the cache.
-
-        Returns:
-            The value associated with key if it exists, None otherwise.
+                        key (_type_): _description_
         """
-        value = self.cache_data.get(key)
-        if value is not None:
-            self.order.remove(key)
-            self.order.append(key)
-        return value
+        if key is not None and key in self.cache_data.keys():
+            self.usedKeys.append(self.usedKeys.pop(self.usedKeys.index(key)))
+            return self.cache_data.get(key)
+        return None
